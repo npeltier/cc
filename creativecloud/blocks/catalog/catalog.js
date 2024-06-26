@@ -14,18 +14,20 @@ export default async function init(el) {
   const merchCardsEl = el.querySelector('.merch-card-collection');
   el.innerHTML = '';
   let merchCards;
+  let merchCardsPromise;
   if (merchCardsEl) {
     el.appendChild(merchCardsEl);
     merchCardsEl.classList.add('four-merch-cards');
     const { default: initMerchCards } = await import(`${libs}/blocks/merch-card-collection/merch-card-collection.js`);
-    merchCards = await initMerchCards(merchCardsEl);
+    merchCardsPromise = initMerchCards(merchCardsEl);
   }
   if (sidenavEl) {
+    const { default: initSidenav } = await import('../sidenav/sidenav.js');
+    const sidenav = await initSidenav(sidenavEl);
+    el.appendChild(sidenav);
+    sidenav.setAttribute('daa-lh', 'b1|catalog-sidenav');
+    merchCards = await merchCardsPromise;
     (merchCards?.updateComplete ?? Promise.resolve()).then(async () => {
-      const { default: initSidenav } = await import('../sidenav/sidenav.js');
-      const sidenav = await initSidenav(sidenavEl);
-      el.appendChild(sidenav);
-      sidenav.setAttribute('daa-lh', 'b1|catalog-sidenav');
       await sidenav.updateComplete;
       if (merchCards) {
         sidenav.filters.addEventListener('click', ({ target }) => {
